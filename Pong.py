@@ -1,96 +1,104 @@
 import pygame, sys
 import random
 
-def ballPhysics(ball, player, opponent, ballspeedX, 
-                ballspeedY, screenWidth, screenHeight,
-                playerScore, opponentScore):
-    
+def ball_physics(ball, player, opponent, ball_speed_x,
+                ball_speed_y, screen_width, screen_height,
+                player_score, opponent_score):
+
     # Ball movement and collisions
-    ball.x += ballspeedX
-    ball.y += ballspeedY
+    ball.x += ball_speed_x
+    ball.y += ball_speed_y
 
     # To make the ball go in the other direction
     # Multily the speed by -1, to reverse the speeed
-    if ball.top <= 0 or ball.bottom >= screenHeight:
-        ballspeedY *= -1
+    if ball.top <= 0 or ball.bottom >= screen_height:
+        ball_speed_y *= -1
 
     # Determines whos wins and score
-    if ball.left <= 0: 
-        ballspeedX, ballspeedY = ballRestart(ball, screenWidth, screenHeight,
-                                                ballspeedX, ballspeedY)
-        playerScore += 1              
-    elif ball.right >= screenWidth:
-        ballspeedX, ballspeedY = ballRestart(ball, screenWidth, screenHeight,
-                                                ballspeedX, ballspeedY)
-        opponentScore += 1  
-        
-    # Handled the ball getting caught inside a paddle
-    if ball.colliderect(player) and ballspeedX > 0:
-        ballspeedX *= -1
-        ball.right = player.left
-    elif ball.colliderect(opponent) and ballspeedX < 0:
-        ballspeedX *= -1
-        ball.left = opponent.right
-    
-    return ballspeedX, ballspeedY, playerScore, opponentScore
+    if ball.left <= 0:
+        ball_speed_x, ball_speed_y = ball_restart(
+            ball, screen_width, screen_height,
+            ball_speed_x, ball_speed_y
+        )
+        player_score += 1
+    elif ball.right >= screen_width:
+        ball_speed_x, ball_speed_y = ball_restart(
+            ball, screen_width, screen_height,
+            ball_speed_x, ball_speed_y
+        )
+        opponent_score += 1
 
-def playerMovement(player, playerSpeed, screenHeight):
-    player.y += playerSpeed 
+    # Handled the ball getting caught inside a paddle
+    if ball.colliderect(player) and ball_speed_x > 0:
+        ball_speed_x *= -1
+        ball.right = player.left
+    elif ball.colliderect(opponent) and ball_speed_x < 0:
+        ball_speed_x *= -1
+        ball.left = opponent.right
+
+    return ball_speed_x, ball_speed_y, player_score, opponent_score
+
+
+def player_movement(player, player_speed, screen_height):
+    player.y += player_speed
     # Handles the player from going out of bounds
     if player.top <= 0:
         player.top = 0
-    if player.bottom >= screenHeight:
-        player.bottom = screenHeight
+    if player.bottom >= screen_height:
+        player.bottom = screen_height
 
-def opponentAI(opponent, opponentSpeed, screenHeight, ball):
+
+def opponent_ai(opponent, opponent_speed, screen_height, ball):
     if opponent.centery < ball.centery:
-        opponent.centery += opponentSpeed
+        opponent.centery += opponent_speed
     elif opponent.centery > ball.centery:
-        opponent.centery -= opponentSpeed
+        opponent.centery -= opponent_speed
     if opponent.top <= 0:
         opponent.top = 0
-    if opponent.bottom >= screenHeight:
-        opponent.bottom = screenHeight
-    
-def ballRestart(ball, screenWidth, screenHeight,
-                ballspeedX, ballspeedY):
-    ball.center = (screenWidth/2, screenHeight/2)
-    ballspeedY *= random.choice((1,-1))
-    ballspeedX *= random.choice((1,-1))
+    if opponent.bottom >= screen_height:
+        opponent.bottom = screen_height
 
-    return ballspeedX, ballspeedY
+
+def ball_restart(ball, screen_width, screen_height,
+                ball_speed_x, ball_speed_y):
+    ball.center = (screen_width / 2, screen_height / 2)
+    ball_speed_y *= random.choice((1, -1))
+    ball_speed_x *= random.choice((1, -1))
+
+    return ball_speed_x, ball_speed_y
+
 
 # General setup
 pygame.init()
 clock = pygame.time.Clock()
 
 # Setting up the main window
-screenWidth = 1280
-screenHeight = 960
+screen_width = 1280
+screen_height = 960
 
 # Returns surface display object
-screen = pygame.display.set_mode((screenWidth, screenHeight)) 
+screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Pong')
 
 # Game Rectangles
-ball = pygame.Rect(screenWidth/2 - 15, screenHeight/2 - 15, 30, 30)
-player = pygame.Rect(screenWidth - 20, screenHeight/2 - 70, 10, 140)
-opponent = pygame.Rect(10, screenHeight/2 - 70, 10, 140)
+ball = pygame.Rect(screen_width / 2 - 15, screen_height / 2 - 15, 30, 30)
+player = pygame.Rect(screen_width - 20, screen_height / 2 - 70, 10, 140)
+opponent = pygame.Rect(10, screen_height / 2 - 70, 10, 140)
 
-bgColor = pygame.Color('grey12')
-lightGrey = (200, 200, 200)
+bg_color = pygame.Color('grey12')
+light_grey = (200, 200, 200)
 
-ballspeedX = 7
-ballspeedY= 7
-playerSpeed = 0
-opponentSpeed = 7
+ball_speed_x = 7
+ball_speed_y = 7
+player_speed = 0
+opponent_speed = 7
 
 # Text Variables
-prevPlayerScore = -1
-prevOpponentScore = -1
-playerScore = 0
-opponentScore = 0
-gameFont = pygame.font.Font("freesansbold.ttf", 32)
+prev_player_score = -1
+prev_opponent_score = -1
+player_score = 0
+opponent_score = 0
+game_font = pygame.font.Font("freesansbold.ttf", 32)
 
 
 while True:
@@ -102,47 +110,47 @@ while True:
             sys.exit()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_DOWN:
-                playerSpeed += 7
+                player_speed += 7
             if event.key == pygame.K_UP:
-                playerSpeed -= 7
+                player_speed -= 7
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_DOWN:
-                playerSpeed -= 7
+                player_speed -= 7
             if event.key == pygame.K_UP:
-                playerSpeed += 7
-                
+                player_speed += 7
 
-    ballspeedX, ballspeedY, playerScore, opponentScore = ballPhysics(
+    ball_speed_x, ball_speed_y, player_score, opponent_score = ball_physics(
         ball, player, opponent,
-        ballspeedX, ballspeedY,
-        screenWidth, screenHeight,
-        playerScore, opponentScore
+        ball_speed_x, ball_speed_y,
+        screen_width, screen_height,
+        player_score, opponent_score
     )
 
-    playerMovement(player, playerSpeed, screenHeight)
-    opponentAI(opponent, opponentSpeed, screenHeight, ball)
+    player_movement(player, player_speed, screen_height)
+    opponent_ai(opponent, opponent_speed, screen_height, ball)
 
     # Visuals, Elements are drawn bottom to top
-    screen.fill(bgColor)
-    pygame.draw.rect(screen, lightGrey, player)
-    pygame.draw.rect(screen, lightGrey, opponent)
-    pygame.draw.rect(screen, lightGrey, ball)
-    pygame.draw.aaline(screen, lightGrey, 
-                       (screenWidth/2,0), 
-                       (screenWidth/2, screenHeight))
-    
-    # Keeps from rendering every frame, only renders when score is changed
-    if playerScore != prevPlayerScore:
-        playerText = gameFont.render(f"{playerScore}", True, lightGrey)
-        prevPlayerScore = playerScore
-    if opponentScore != prevOpponentScore:
-        opponentText = gameFont.render(f"{opponentScore}", True, lightGrey)
-        prevOpponentScore = opponentScore
+    screen.fill(bg_color)
+    pygame.draw.rect(screen, light_grey, player)
+    pygame.draw.rect(screen, light_grey, opponent)
+    pygame.draw.rect(screen, light_grey, ball)
+    pygame.draw.aaline(
+        screen, light_grey,
+        (screen_width / 2, 0),
+        (screen_width / 2, screen_height)
+    )
 
-    screen.blit(playerText, (960, 96))
-    screen.blit(opponentText, (320, 96))
+    # Keeps from rendering every frame, only renders when score is changed
+    if player_score != prev_player_score:
+        player_text = game_font.render(f"{player_score}", True, light_grey)
+        prev_player_score = player_score
+    if opponent_score != prev_opponent_score:
+        opponent_text = game_font.render(f"{opponent_score}", True, light_grey)
+        prev_opponent_score = opponent_score
+
+    screen.blit(player_text, (960, 96))
+    screen.blit(opponent_text, (320, 96))
 
     # Updating the window
     pygame.display.flip()
     clock.tick(60)
-
