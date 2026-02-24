@@ -1,14 +1,16 @@
-import pygame, sys
+import pygame
+import sys
 import random
 
-def ball_physics(ball, player, opponent, ball_speed_x,
-                ball_speed_y, screen_width, screen_height,
-                player_score, opponent_score):
+
+def ball_physics(ball: pygame.Rect, player: pygame.Rect, opponent: pygame.Rect, ball_speed_x: int,
+                 ball_speed_y: int, screen_width: int, screen_height: int,
+                 player_score: int, opponent_score: int):
 
     # Ball movement and collisions
     ball.x += ball_speed_x
     ball.y += ball_speed_y
-
+    
     # To make the ball go in the other direction
     # Multily the speed by -1, to reverse the speeed
     if ball.top <= 0 or ball.bottom >= screen_height:
@@ -39,7 +41,7 @@ def ball_physics(ball, player, opponent, ball_speed_x,
     return ball_speed_x, ball_speed_y, player_score, opponent_score
 
 
-def player_movement(player, player_speed, screen_height):
+def player_movement(player: pygame.Rect, player_speed: int, screen_height: int):
     player.y += player_speed
     # Handles the player from going out of bounds
     if player.top <= 0:
@@ -48,7 +50,7 @@ def player_movement(player, player_speed, screen_height):
         player.bottom = screen_height
 
 
-def opponent_ai(opponent, opponent_speed, screen_height, ball):
+def opponent_ai(opponent: pygame.Rect, opponent_speed: int, screen_height: int, ball: pygame.Rect):
     if opponent.centery < ball.centery:
         opponent.centery += opponent_speed
     elif opponent.centery > ball.centery:
@@ -59,8 +61,8 @@ def opponent_ai(opponent, opponent_speed, screen_height, ball):
         opponent.bottom = screen_height
 
 
-def ball_restart(ball, screen_width, screen_height,
-                ball_speed_x, ball_speed_y):
+def ball_restart(ball: pygame.Rect, screen_width: int, screen_height: int,
+                 ball_speed_x: int, ball_speed_y: int):
     ball.center = (screen_width / 2, screen_height / 2)
     ball_speed_y *= random.choice((1, -1))
     ball_speed_x *= random.choice((1, -1))
@@ -94,12 +96,17 @@ player_speed = 0
 opponent_speed = 7
 
 # Text Variables
-prev_player_score = -1
-prev_opponent_score = -1
+prev_player_score = 0
+prev_opponent_score = 0
 player_score = 0
 opponent_score = 0
 game_font = pygame.font.Font("freesansbold.ttf", 32)
 
+# Initially render score text
+player_text: pygame.Surface = game_font.render(
+    f"{player_score}", True, light_grey)
+opponent_text: pygame.Surface = game_font.render(
+    f"{opponent_score}", True, light_grey)
 
 while True:
     # Handling input
@@ -140,13 +147,15 @@ while True:
         (screen_width / 2, screen_height)
     )
 
-    # Keeps from rendering every frame, only renders when score is changed
+    # Only assign score on condition
     if player_score != prev_player_score:
-        player_text = game_font.render(f"{player_score}", True, light_grey)
         prev_player_score = player_score
+        player_text: pygame.Surface = game_font.render(
+            f"{player_score}", True, light_grey)
     if opponent_score != prev_opponent_score:
-        opponent_text = game_font.render(f"{opponent_score}", True, light_grey)
         prev_opponent_score = opponent_score
+        opponent_text: pygame.Surface = game_font.render(
+            f"{opponent_score}", True, light_grey)
 
     screen.blit(player_text, (960, 96))
     screen.blit(opponent_text, (320, 96))
